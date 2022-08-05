@@ -12,11 +12,20 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final sessionManager = GetIt.I.get<SessionManager>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(sessionManager.user?.name ?? 'nao logado'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+            onPressed: () {
+              sessionManager.rqHttp?.recuperaSensores();
+              sessionManager.user?.escreve3();
+            },
+            child: const Text('click')),
       ),
     );
   }
