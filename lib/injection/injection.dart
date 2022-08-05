@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
-import 'package:injecao_de_dependencia/manegers/requisicao.dart';
+import 'package:injecao_de_dependencia/models/requisicao.dart';
 import '../manegers/session_manager.dart';
 
 void configureDependencies() {

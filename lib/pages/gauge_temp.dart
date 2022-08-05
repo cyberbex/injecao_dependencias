@@ -3,27 +3,26 @@ import 'package:get_it/get_it.dart';
 
 import '../manegers/session_manager.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+class GaugeTemp extends StatefulWidget {
+  const GaugeTemp({Key? key}) : super(key: key);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<GaugeTemp> createState() => _GaugeTempState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _GaugeTempState extends State<GaugeTemp> {
   final sessionManager = GetIt.I.get<SessionManager>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(sessionManager.user?.name ?? 'nao logado'),
+        title: const Text('dsf'),
       ),
       body: Center(
         child: ElevatedButton(
             onPressed: () {
               sessionManager.rqHttp?.recuperaSensores();
-              sessionManager.user?.escreve3();
             },
             child: const Text('click')),
       ),

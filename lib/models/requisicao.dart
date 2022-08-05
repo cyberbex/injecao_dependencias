@@ -6,14 +6,6 @@ class RequisicaoHttp {
   dynamic humidade = 0.0;
   dynamic temperatura = 0;
 
-  escreve() {
-    return print('qualquer coisa');
-  }
-
-  escreve2() {
-    return print('qualquer coisa 2222');
-  }
-
   recuperaSensores() async {
     String url = "http://15.228.187.254:5000/valores";
     http.Response response;
