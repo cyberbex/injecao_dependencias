@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class RequisicaoHttp {
+  
   dynamic amonia = 0.0;
   dynamic humidade = 0.0;
   dynamic temperatura = 0;

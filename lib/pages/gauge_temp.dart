@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'dart:async';
 
 import '../manegers/session_manager.dart';
 
@@ -12,19 +14,179 @@ class GaugeTemp extends StatefulWidget {
 
 class _GaugeTempState extends State<GaugeTemp> {
   final sessionManager = GetIt.I.get<SessionManager>();
+  late Timer _timer;
+  TextEditingController tempMaxEditingController = TextEditingController();
+  TextEditingController tempMinEditingController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      setState(() {
+        sessionManager.rqHttp?.recuperaSensores();
+        sessionManager.crtAlarme?.monitoraAlarme();
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
+  }
+
+  salvar() {
+    if (tempMaxEditingController.text != '') {
+      sessionManager.crtAlarme?.tempMaxAlarme = tempMaxEditingController.text;
+      tempMaxEditingController.text = '';
+    }
+    if (tempMinEditingController.text != '') {
+      sessionManager.crtAlarme?.tempMinAlarme = tempMinEditingController.text;
+      tempMinEditingController.text = '';
+    }
+  }
+
+  showAlertDialog(BuildContext context) {
+    Widget cancelaButton = ElevatedButton(
+      child: const Text("Cancelar"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continuaButton = ElevatedButton(
+      child: const Text("Salvar"),
+      onPressed: () {
+        Navigator.of(context).pop();
+        salvar();
+      },
+    );
+    //configura o AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("AlertDialog"),
+      content: const Text("Tem certeza que deseja alterar valor de Alarme?"),
+      actions: [
+        cancelaButton,
+        continuaButton,
+      ],
+    );
+    //exibe o diálogo
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  Widget _tempGauge(dynamic temperatura) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(
+            width: 290,
+            height: 270,
+            child: SfRadialGauge(
+              enableLoadingAnimation: true,
+              animationDuration: 1000,
+              axes: <RadialAxis>[
+                RadialAxis(
+                  minimum: 0,
+                  maximum: 35,
+                  interval: 2,
+                  pointers: <GaugePointer>[
+                    NeedlePointer(
+                        value: temperatura.toDouble(), enableAnimation: true),
+                  ],
+                  ranges: <GaugeRange>[
+                    GaugeRange(
+                        startValue: 0, endValue: 20, color: Colors.green),
+                    GaugeRange(
+                        startValue: 20, endValue: 28, color: Colors.yellow),
+                    GaugeRange(startValue: 28, endValue: 40, color: Colors.red)
+                  ],
+                  annotations: const <GaugeAnnotation>[
+                    GaugeAnnotation(
+                      widget: Text(
+                        'Temperatura',
+                        style: TextStyle(
+                            fontSize: 20.0, fontWeight: FontWeight.bold),
+                      ),
+                      positionFactor: 0.5,
+                      angle: 90,
+                    )
+                  ],
+                ),
+              ],
+            )),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('dsf'),
+        title: const Text('Sensor Temperatura'),
       ),
-      body: Center(
-        child: ElevatedButton(
-            onPressed: () {
-              sessionManager.rqHttp?.recuperaSensores();
-            },
-            child: const Text('click')),
+      body: SingleChildScrollView(
+        child: Container(
+          child: Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 20),
+              ),
+              _tempGauge(sessionManager.rqHttp?.temperatura),
+              Row(
+                children: [
+                  const Padding(padding: EdgeInsets.all(10)),
+                  const Text(
+                    "Alarme temperatura máxima:",
+                    style: TextStyle(fontSize: 22, color: Colors.red),
+                  ),
+                  Text(
+                    '${sessionManager.crtAlarme!.tempMaxAlarme} ',
+                    style: const TextStyle(
+                        fontSize: 22, backgroundColor: Colors.amber),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  const Padding(padding: EdgeInsets.all(10)),
+                  const Text(
+                    "Alarme temperatura minima:",
+                    style: TextStyle(fontSize: 22, color: Colors.red),
+                  ),
+                  Text(
+                    '${sessionManager.crtAlarme!.tempMinAlarme} ',
+                    style: const TextStyle(
+                        fontSize: 22, backgroundColor: Colors.amber),
+                  ),
+                ],
+              ),
+              const Padding(padding: EdgeInsets.only(top: 10)),
+              TextField(
+                controller: tempMaxEditingController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                    labelText: "Digite temperatura Máxima alarme"),
+              ),
+              TextField(
+                controller: tempMinEditingController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                    labelText: "Digite temperatura Minima alarme"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  showAlertDialog(context);
+                },
+                child: const Text('Salvar'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
