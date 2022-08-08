@@ -17,6 +17,7 @@ class _GaugeTempState extends State<GaugeTemp> {
   late Timer _timer;
   TextEditingController tempMaxEditingController = TextEditingController();
   TextEditingController tempMinEditingController = TextEditingController();
+  final _form = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -137,46 +138,88 @@ class _GaugeTempState extends State<GaugeTemp> {
                 padding: EdgeInsets.only(top: 20),
               ),
               _tempGauge(sessionManager.rqHttp?.temperatura),
-              Row(
-                children: [
-                  const Padding(padding: EdgeInsets.all(10)),
-                  const Text(
-                    "Alarme temperatura máxima:",
-                    style: TextStyle(fontSize: 22, color: Colors.red),
-                  ),
-                  Text(
-                    '${sessionManager.crtAlarme!.tempMaxAlarme} ',
-                    style: const TextStyle(
-                        fontSize: 22, backgroundColor: Colors.amber),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  const Padding(padding: EdgeInsets.all(10)),
-                  const Text(
-                    "Alarme temperatura minima:",
-                    style: TextStyle(fontSize: 22, color: Colors.red),
-                  ),
-                  Text(
-                    '${sessionManager.crtAlarme!.tempMinAlarme} ',
-                    style: const TextStyle(
-                        fontSize: 22, backgroundColor: Colors.amber),
-                  ),
-                ],
-              ),
               const Padding(padding: EdgeInsets.only(top: 10)),
-              TextField(
-                controller: tempMaxEditingController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                    labelText: "Digite temperatura Máxima alarme"),
-              ),
-              TextField(
-                controller: tempMinEditingController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                    labelText: "Digite temperatura Minima alarme"),
+              Container(
+                margin: const EdgeInsets.only(left: 10),
+                child: Form(
+                    child: Column(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: Container(
+                        //alignment: Alignment.center,
+                        decoration:
+                            BoxDecoration(color: Colors.blue.withOpacity(0.1)),
+                        child: Text(
+                          'Alarme Temp Max ${sessionManager.crtAlarme?.tempMaxAlarme} graus',
+                          style:
+                              const TextStyle(fontSize: 20, color: Colors.red),
+                        ),
+                      ),
+                    ),
+                    const Padding(padding: EdgeInsets.only(bottom: 15)),
+                    TextFormField(
+                      key: _form,
+                      controller: tempMaxEditingController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: "Digite Máxima alarme",
+                        prefixIcon: Icon(Icons.access_alarm),
+                        suffix: Text(
+                          'graus',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Informe um valor de temperatura minima entre 0 e 40';
+                        } else if (double.parse(value) >= 0 &&
+                            double.parse(value) <= 40) {
+                          return 'valor fora de range!!';
+                        }
+                        return null;
+                      },
+                    ),
+                    const Padding(padding: EdgeInsets.only(bottom: 15)),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      child: Container(
+                        //alignment: Alignment.center,
+                        decoration:
+                            BoxDecoration(color: Colors.blue.withOpacity(0.1)),
+                        child: Text(
+                          'Alarme Temp Min ${sessionManager.crtAlarme?.tempMinAlarme} graus',
+                          style:
+                              const TextStyle(fontSize: 20, color: Colors.red),
+                        ),
+                      ),
+                    ),
+                    const Padding(padding: EdgeInsets.only(bottom: 15)),
+                    TextFormField(
+                      controller: tempMinEditingController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: "Digite Minima alarme",
+                        prefixIcon: Icon(Icons.access_alarm),
+                        suffix: Text(
+                          'graus',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Informe um valor de temperatura máxima entre 0 e 40';
+                        } else if (double.parse(value) >= 0 &&
+                            double.parse(value) <= 40) {
+                          return 'valor fora de range!!';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                )),
               ),
               ElevatedButton(
                 onPressed: () {
